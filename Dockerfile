@@ -5,24 +5,28 @@ RUN apk add --no-cache cmake git build-base boost-dev boost-static
 
 WORKDIR /app
 
-# Clone the latest version from repository
-RUN git clone https://github.com/percolator/percolator.git
+# clone specific tag
+RUN git clone --branch rel-3-06-05 --depth 1 https://github.com/percolator/percolator.git
 
 WORKDIR /app/percolator
 
-# Configure and build
-RUN cmake .
-RUN cmake --build .
+# build
+RUN cmake . && cmake --build .
 
 # Stage 2: Minimal Runtime Image
 FROM alpine:latest
 
-# Install only runtime dependencies
-RUN apk add --no-cache boost-libs libgomp
+# runtime deps + zip
+RUN apk add --no-cache boost-libs libgomp zip unzip
 
 WORKDIR /app/percolator
 
-# Copy only the final executable from the build stage
+# copy percolator binary
 COPY --from=builder /app/percolator/src/percolator /app/percolator/
 
-ENTRYPOINT [ "/app/percolator/percolator" ]
+# copy your entrypoint wrapper
+COPY entrypoint.sh /usr/local/bin/percolator-entrypoint
+RUN chmod +x /usr/local/bin/percolator-entrypoint
+
+# use the wrapper
+ENTRYPOINT ["/usr/local/bin/percolator-entrypoint"]
