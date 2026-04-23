@@ -11,7 +11,7 @@ RUN git clone --branch rel-3-06-05 --depth 1 https://github.com/percolator/perco
 WORKDIR /app/percolator
 
 # build
-RUN cmake . && cmake --build .
+RUN cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 . && cmake --build .
 
 # Stage 2: Minimal Runtime Image
 FROM alpine:latest
