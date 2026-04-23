@@ -1,12 +1,13 @@
 # Stage 1: Build Percolator
 FROM alpine:latest AS builder
 
-RUN apk add --no-cache cmake git build-base boost-dev boost-static
+RUN apk add --no-cache cmake build-base boost-dev boost-static gtest-dev
 
 WORKDIR /app
 
-# clone specific tag
-RUN git clone --branch rel-3-06-05 --depth 1 https://github.com/percolator/percolator.git
+# download specific tag tarball
+RUN wget -qO- https://github.com/percolator/percolator/archive/refs/tags/rel-3-06-05.tar.gz \
+    | tar xz && mv percolator-rel-3-06-05 percolator
 
 WORKDIR /app/percolator
 
